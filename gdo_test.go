@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os/exec"
 	"reflect"
 	"regexp"
 	"testing"
@@ -47,5 +48,21 @@ func TestMatch(t *testing.T) {
 	if expect2 != actual2 {
 		t.Errorf("MatchString(%q) = %v, want %v",
 			expr, actual2, expect2)
+	}
+}
+
+func TestNewProcessor(t *testing.T) {
+	name := "mkdir"
+	p, err := NewProcessor(name)
+	if err != nil {
+		t.Errorf("NewMatcher(%q) returns %q, want nil",
+			name, err)
+	}
+
+	expect := exec.Command(name)
+	actual := p.cmd
+	if !reflect.DeepEqual(actual, expect) {
+		t.Errorf("NewProcessor(%q).cmd = %v, want %v",
+			name, actual, expect)
 	}
 }
