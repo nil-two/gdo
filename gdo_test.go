@@ -4,6 +4,7 @@ import (
 	"os/exec"
 	"reflect"
 	"regexp"
+	"strings"
 	"testing"
 )
 
@@ -86,5 +87,33 @@ func TestProcess(t *testing.T) {
 	}
 	if !reflect.DeepEqual(actual, expect) {
 		t.Errorf("got %q, want %q", actual, expect)
+	}
+}
+
+func TestLoadLines(t *testing.T) {
+	src := strings.NewReader(`
+abc
+123
+456
+def
+ghi
+789
+jkl
+mno
+`[1:])
+	expr := `\d+`
+	expect := &Lines{
+		lines:          []string{"abc", "123", "456", "def", "ghi", "789", "jkl", "mno"},
+		matchedLines:   []string{"123", "456", "789"},
+		matchedIndexes: map[int]bool{1: true, 2: true, 5: true},
+	}
+	actual, err := LoadLines(src, expr)
+	if err != nil {
+		t.Errorf("LoadLines(%v) returns %q, want nil",
+			src, err)
+	}
+	if !reflect.DeepEqual(actual, expect) {
+		t.Errorf("LoadLines(%v) = %v, want %v",
+			src, actual, expect)
 	}
 }
