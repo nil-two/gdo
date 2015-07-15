@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os/exec"
 	"regexp"
 )
@@ -71,4 +72,23 @@ type Lines struct {
 	lines          []string
 	matchedLines   []string
 	matchedIndexes map[int]bool
+}
+
+func LoadLines(r io.Reader, expr string) (l *Lines, err error) {
+	m, err := NewMatcher(expr)
+	if err != nil {
+		return nil, err
+	}
+	l = &Lines{}
+	l.matchedIndexes = make(map[int]bool)
+	b := bufio.NewScanner(r)
+	for i := 0; b.Scan(); i++ {
+		line := b.Text()
+		if m.MatchString(line) {
+			l.matchedLines = append(l.matchedLines, line)
+			l.matchedIndexes[i] = true
+		}
+		l.lines = append(l.lines, line)
+	}
+	return l, nil
 }
