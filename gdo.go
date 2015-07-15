@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os/exec"
 	"regexp"
 )
 
@@ -19,4 +20,8 @@ func NewMatcher(expr string) (m *Matcher, err error) {
 
 func (m *Matcher) MatchString(s string) bool {
 	return m.re.MatchString(s)
+}
+
+type Processor struct {
+	cmd *exec.Cmd
 }
