@@ -16,3 +16,7 @@ func NewMatcher(expr string) (m *Matcher, err error) {
 	}
 	return m, nil
 }
+
+func (m *Matcher) MatchString(s string) bool {
+	return m.re.MatchString(s)
+}
