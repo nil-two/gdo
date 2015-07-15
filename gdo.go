@@ -65,7 +65,7 @@ func (p *Processor) Process(a []string) error {
 	for i := 0; i < len(a) && b.Scan(); i++ {
 		a[i] = b.Text()
 	}
-	return nil
+	return b.Err()
 }
 
 type Lines struct {
@@ -90,5 +90,5 @@ func LoadLines(r io.Reader, expr string) (l *Lines, err error) {
 		}
 		l.lines = append(l.lines, line)
 	}
-	return l, nil
+	return l, b.Err()
 }
