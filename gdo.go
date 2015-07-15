@@ -25,3 +25,12 @@ func (m *Matcher) MatchString(s string) bool {
 type Processor struct {
 	cmd *exec.Cmd
 }
+
+func NewProcessor(name string, arg ...string) (p *Processor, err error) {
+	if _, err = exec.LookPath(name); err != nil {
+		return nil, err
+	}
+	p = &Processor{}
+	p.cmd = exec.Command(name, arg...)
+	return p, nil
+}
