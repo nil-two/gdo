@@ -66,3 +66,9 @@ func (p *Processor) Process(a []string) error {
 	}
 	return nil
 }
+
+type Lines struct {
+	lines          []string
+	matchedLines   []string
+	matchedIndexes map[int]bool
+}
