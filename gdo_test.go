@@ -94,31 +94,12 @@ func TestProcess(t *testing.T) {
 }
 
 func TestNewLines(t *testing.T) {
-	expr := `\d+`
-	name, arg := "sed", "s/true/false/g"
-	if _, err := exec.LookPath(name); err != nil {
-		t.Skipf("%q: doesn't exist", name)
-	}
-
-	m, err := NewMatcher(expr)
-	if err != nil {
-		t.Errorf("NewMatcher(%q) returns %q, want nil",
-			expr, err)
-	}
-	p, err := NewProcessor(name, arg)
-	if err != nil {
-		t.Errorf("NewProcessor(%q, %q) returns %q, want nil",
-			name, arg, err)
-	}
-
 	expect := &Lines{
-		matcher:        m,
-		processor:      p,
 		lines:          []string{},
 		matchedLines:   []string{},
 		matchedIndexes: make(map[int]bool),
 	}
-	actual := NewLines(m, p)
+	actual := NewLines()
 	if !reflect.DeepEqual(actual, expect) {
 		t.Errorf("got %v, want %v", actual, expect)
 	}
@@ -142,14 +123,12 @@ jkl
 mno
 `[1:])
 	expect := &Lines{
-		matcher:        m,
-		processor:      nil,
 		lines:          []string{"abc", "123", "def", "456", "789", "ghi", "jkl", "mno"},
 		matchedLines:   []string{"123", "456", "789"},
 		matchedIndexes: map[int]bool{1: true, 3: true, 4: true},
 	}
-	actual := NewLines(m, nil)
-	if err = actual.LoadLines(src); err != nil {
+	actual := NewLines()
+	if err = actual.LoadLines(src, m); err != nil {
 		t.Errorf("NewLines(%v).LoadLines(%v) returns %q, want nil",
 			m, src, err)
 	}
