@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"os/exec"
 	"reflect"
 	"regexp"
@@ -134,5 +135,39 @@ mno
 	}
 	if !reflect.DeepEqual(actual, expect) {
 		t.Errorf("got %v, want %v", actual, expect)
+	}
+}
+
+func TestFlush(t *testing.T) {
+	name, arg := "sed", "s/.*/true/"
+	if _, err := exec.LookPath(name); err != nil {
+		t.Skipf("%q: doesn't exist", name)
+	}
+	p, err := NewProcessor(name, arg)
+	if err != nil {
+		t.Errorf("NewProcessor(%q, %q) returns %q, want nil",
+			name, arg, err)
+	}
+	l := &Lines{
+		lines:          []string{"true", "false", "false", "true", "nil", "true", "false"},
+		matchedLines:   []string{"false", "false", "false"},
+		matchedIndexes: map[int]bool{1: true, 2: true, 6: true},
+	}
+
+	out := bytes.NewBuffer(make([]byte, 0))
+	if l.Flush(out, p); err != nil {
+	}
+	expect := `
+true
+true
+true
+true
+nil
+true
+true
+`[1:]
+	actual := out.String()
+	if !reflect.DeepEqual(actual, expect) {
+		t.Errorf("got %q, want %q", actual, expect)
 	}
 }
