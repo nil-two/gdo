@@ -94,3 +94,19 @@ func (l *Lines) LoadLines(r io.Reader, m *Matcher) error {
 	}
 	return b.Err()
 }
+
+func (l *Lines) Flush(out io.Writer, p *Processor) error {
+	if err := p.Process(l.matchedLines); err != nil {
+		return err
+	}
+	mi := 0
+	for li := 0; li < len(l.lines); li++ {
+		if l.matchedIndexes[li] {
+			fmt.Fprintln(out, l.matchedLines[mi])
+			mi++
+		} else {
+			fmt.Fprintln(out, l.lines[li])
+		}
+	}
+	return nil
+}
