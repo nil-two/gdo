@@ -4,6 +4,7 @@ import (
 	"os/exec"
 	"reflect"
 	"regexp"
+	"strings"
 	"testing"
 )
 
@@ -115,6 +116,40 @@ func TestNewLines(t *testing.T) {
 		matchedIndexes: make(map[int]bool),
 	}
 	actual := NewLines(m, p)
+	if !reflect.DeepEqual(actual, expect) {
+		t.Errorf("got %v, want %v", actual, expect)
+	}
+}
+
+func TestLoadLines(t *testing.T) {
+	expr := `\d+`
+	m, err := NewMatcher(expr)
+	if err != nil {
+		t.Errorf("NewMatcher(%q) returns %q, want nil",
+			expr, err)
+	}
+	src := strings.NewReader(`
+abc
+123
+def
+456
+789
+ghi
+jkl
+mno
+`[1:])
+	expect := &Lines{
+		matcher:        m,
+		processor:      nil,
+		lines:          []string{"abc", "123", "def", "456", "789", "ghi", "jkl", "mno"},
+		matchedLines:   []string{"123", "456", "789"},
+		matchedIndexes: map[int]bool{1: true, 3: true, 4: true},
+	}
+	actual := NewLines(m, nil)
+	if err = actual.LoadLines(src); err != nil {
+		t.Errorf("NewLines(%v).LoadLines(%v) returns %q, want nil",
+			m, src, err)
+	}
 	if !reflect.DeepEqual(actual, expect) {
 		t.Errorf("got %v, want %v", actual, expect)
 	}
