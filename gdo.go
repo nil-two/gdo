@@ -69,28 +69,24 @@ func (p *Processor) Process(a []string) error {
 }
 
 type Lines struct {
-	matcher        *Matcher
-	processor      *Processor
 	lines          []string
 	matchedLines   []string
 	matchedIndexes map[int]bool
 }
 
-func NewLines(m *Matcher, p *Processor) *Lines {
+func NewLines() *Lines {
 	return &Lines{
-		matcher:        m,
-		processor:      p,
 		lines:          []string{},
 		matchedLines:   []string{},
 		matchedIndexes: make(map[int]bool),
 	}
 }
 
-func (l *Lines) LoadLines(r io.Reader) error {
+func (l *Lines) LoadLines(r io.Reader, m *Matcher) error {
 	b := bufio.NewScanner(r)
 	for i := 0; b.Scan(); i++ {
 		line := b.Text()
-		if l.matcher.MatchString(line) {
+		if m.MatchString(line) {
 			l.matchedLines = append(l.matchedLines, line)
 			l.matchedIndexes[i] = true
 		}
