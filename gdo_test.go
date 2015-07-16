@@ -4,7 +4,6 @@ import (
 	"os/exec"
 	"reflect"
 	"regexp"
-	"strings"
 	"testing"
 )
 
@@ -90,30 +89,33 @@ func TestProcess(t *testing.T) {
 	}
 }
 
-func TestLoadLines(t *testing.T) {
-	src := strings.NewReader(`
-abc
-123
-456
-def
-ghi
-789
-jkl
-mno
-`[1:])
+func TestNewLines(t *testing.T) {
 	expr := `\d+`
-	expect := &Lines{
-		lines:          []string{"abc", "123", "456", "def", "ghi", "789", "jkl", "mno"},
-		matchedLines:   []string{"123", "456", "789"},
-		matchedIndexes: map[int]bool{1: true, 2: true, 5: true},
+	name, arg := "sed", "s/true/false/g"
+	if _, err := exec.LookPath(name); err != nil {
+		t.Skipf("%q: doesn't exist", name)
 	}
-	actual, err := LoadLines(src, expr)
+
+	m, err := NewMatcher(expr)
 	if err != nil {
-		t.Errorf("LoadLines(%v) returns %q, want nil",
-			src, err)
+		t.Errorf("NewMatcher(%q) returns %q, want nil",
+			name, err)
 	}
+	p, err := NewProcessor(name, arg)
+	if err != nil {
+		t.Errorf("NewProcessor(%q, %q) returns %q, want nil",
+			name, arg, err)
+	}
+
+	expect := &Lines{
+		matcher:        m,
+		processor:      p,
+		lines:          []string{},
+		matchedLines:   []string{},
+		matchedIndexes: make(map[int]bool),
+	}
+	actual := NewLines(m, p)
 	if !reflect.DeepEqual(actual, expect) {
-		t.Errorf("LoadLines(%v) = %v, want %v",
-			src, actual, expect)
+		t.Errorf("got %v, want %v", actual, expect)
 	}
 }
