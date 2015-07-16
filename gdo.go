@@ -68,6 +68,14 @@ func (p *Processor) Process(a []string) error {
 	return b.Err()
 }
 
+type Option struct {
+	IsHelp  bool
+	Pattern string
+	Command string
+	Arg     []string
+	Files   []string
+}
+
 type Lines struct {
 	lines          []string
 	matchedLines   []string
