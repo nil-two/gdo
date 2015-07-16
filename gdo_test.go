@@ -54,6 +54,9 @@ func TestMatch(t *testing.T) {
 
 func TestNewProcessor(t *testing.T) {
 	name := "mkdir"
+	if _, err := exec.LookPath(name); err != nil {
+		t.Skipf("%q: doesn't exist", name)
+	}
 	p, err := NewProcessor(name)
 	if err != nil {
 		t.Errorf("NewMatcher(%q) returns %q, want nil",
@@ -100,7 +103,7 @@ func TestNewLines(t *testing.T) {
 	m, err := NewMatcher(expr)
 	if err != nil {
 		t.Errorf("NewMatcher(%q) returns %q, want nil",
-			name, err)
+			expr, err)
 	}
 	p, err := NewProcessor(name, arg)
 	if err != nil {
