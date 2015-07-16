@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"os/exec"
 	"regexp"
 )
@@ -69,26 +68,19 @@ func (p *Processor) Process(a []string) error {
 }
 
 type Lines struct {
+	matcher        *Matcher
+	processor      *Processor
 	lines          []string
 	matchedLines   []string
 	matchedIndexes map[int]bool
 }
 
-func LoadLines(r io.Reader, expr string) (l *Lines, err error) {
-	m, err := NewMatcher(expr)
-	if err != nil {
-		return nil, err
+func NewLines(m *Matcher, p *Processor) *Lines {
+	return &Lines{
+		matcher:        m,
+		processor:      p,
+		lines:          []string{},
+		matchedLines:   []string{},
+		matchedIndexes: make(map[int]bool),
 	}
-	l = &Lines{}
-	l.matchedIndexes = make(map[int]bool)
-	b := bufio.NewScanner(r)
-	for i := 0; b.Scan(); i++ {
-		line := b.Text()
-		if m.MatchString(line) {
-			l.matchedLines = append(l.matchedLines, line)
-			l.matchedIndexes[i] = true
-		}
-		l.lines = append(l.lines, line)
-	}
-	return l, b.Err()
 }
