@@ -133,7 +133,7 @@ func TestNewLines(t *testing.T) {
 
 	opt := &Option{
 		Pattern: expr,
-		Command: command,
+		Command: name,
 		Arg:     arg,
 	}
 
