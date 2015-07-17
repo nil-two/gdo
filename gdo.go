@@ -151,8 +151,8 @@ func (l *Lines) LoadLines(r io.Reader) error {
 	return b.Err()
 }
 
-func (l *Lines) Flush(out io.Writer, p *Processor) error {
-	if err := p.Process(l.matchedLines); err != nil {
+func (l *Lines) Flush(out io.Writer) error {
+	if err := l.processor.Process(l.matchedLines); err != nil {
 		return err
 	}
 	mi := 0
