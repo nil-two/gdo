@@ -20,10 +20,14 @@ Process matched lines with COMMAND
 `[1:])
 }
 
+func printErr(err error) {
+	fmt.Fprintln(os.Stderr, "gdo:", err)
+}
+
 func _main() int {
 	opt, err := ParseOption(os.Args[1:])
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "gdo:", err)
+		printErr(err)
 		guideToHelp()
 		return 2
 	}
@@ -34,23 +38,23 @@ func _main() int {
 
 	l, err := NewLines(opt)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "gdo:", err)
+		printErr(err)
 		guideToHelp()
 		return 2
 	}
 	r, err := argf.From(opt.Files)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "gdo:", err)
+		printErr(err)
 		guideToHelp()
 		return 2
 	}
 
 	if err = l.LoadLines(r); err != nil {
-		fmt.Fprintln(os.Stderr, "gdo:", err)
+		printErr(err)
 		return 1
 	}
 	if err = l.Flush(os.Stdout); err != nil {
-		fmt.Fprintln(os.Stderr, "gdo:", err)
+		printErr(err)
 		return 1
 	}
 	return 0
