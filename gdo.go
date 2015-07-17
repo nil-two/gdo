@@ -138,11 +138,11 @@ func NewLines(opt *Option) (l *Lines, err error) {
 	}, nil
 }
 
-func (l *Lines) LoadLines(r io.Reader, m *Matcher) error {
+func (l *Lines) LoadLines(r io.Reader) error {
 	b := bufio.NewScanner(r)
 	for i := 0; b.Scan(); i++ {
 		line := b.Text()
-		if m.MatchString(line) {
+		if l.matcher.MatchString(line) {
 			l.matchedLines = append(l.matchedLines, line)
 			l.matchedIndexes[i] = true
 		}
