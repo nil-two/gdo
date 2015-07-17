@@ -114,12 +114,41 @@ func TestParseOption(t *testing.T) {
 }
 
 func TestNewLines(t *testing.T) {
+	expr := `false`
+	name, arg := "sed", []string{"s/.*/true/g"}
+	if _, err := exec.LookPath(name); err != nil {
+		t.Skipf("%q: doesn't exist", name)
+	}
+
+	m, err := NewMatcher(expr)
+	if err != nil {
+		t.Errorf("NewMatcher(%q) returns %q, want nil",
+			expr, err)
+	}
+	p, err := NewProcessor(name, arg...)
+	if err != nil {
+		t.Errorf("NewProcessor(%q, %q) returns %q, want nil",
+			name, arg, err)
+	}
+
+	opt := &Option{
+		Pattern: expr,
+		Command: command,
+		Arg:     arg,
+	}
+
 	expect := &Lines{
+		matcher:        m,
+		processor:      p,
 		lines:          []string{},
 		matchedLines:   []string{},
 		matchedIndexes: make(map[int]bool),
 	}
-	actual := NewLines()
+	actual, err := NewLines(opt)
+	if err != nil {
+		t.Errorf("NewLines(%v) returns %q, want nil",
+			opt, err)
+	}
 	if !reflect.DeepEqual(actual, expect) {
 		t.Errorf("got %v, want %v", actual, expect)
 	}
@@ -147,8 +176,10 @@ mno
 		matchedLines:   []string{"123", "456", "789"},
 		matchedIndexes: map[int]bool{1: true, 3: true, 4: true},
 	}
-	actual := NewLines()
-	if err = actual.LoadLines(src, m); err != nil {
+	actual := &Lines{}
+	actual.matchedIndexes = make(map[int]bool)
+	actual.matcher = m
+	if err = actual.LoadLines(src); err != nil {
 		t.Errorf("NewLines(%v).LoadLines(%v) returns %q, want nil",
 			m, src, err)
 	}
@@ -168,13 +199,14 @@ func TestFlush(t *testing.T) {
 			name, arg, err)
 	}
 	l := &Lines{
+		processor:      p,
 		lines:          []string{"true", "false", "false", "true", "nil", "true", "false"},
 		matchedLines:   []string{"false", "false", "false"},
 		matchedIndexes: map[int]bool{1: true, 2: true, 6: true},
 	}
 
 	out := bytes.NewBuffer(make([]byte, 0))
-	if l.Flush(out, p); err != nil {
+	if l.Flush(out); err != nil {
 	}
 	expect := `
 true
