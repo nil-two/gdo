@@ -113,47 +113,6 @@ func TestParseOption(t *testing.T) {
 	}
 }
 
-func TestNewLines(t *testing.T) {
-	expr := `false`
-	name, arg := "sed", []string{"s/.*/true/g"}
-	if _, err := exec.LookPath(name); err != nil {
-		t.Skipf("%q: doesn't exist", name)
-	}
-
-	m, err := NewMatcher(expr)
-	if err != nil {
-		t.Errorf("NewMatcher(%q) returns %q, want nil",
-			expr, err)
-	}
-	p, err := NewProcessor(name, arg...)
-	if err != nil {
-		t.Errorf("NewProcessor(%q, %q) returns %q, want nil",
-			name, arg, err)
-	}
-
-	opt := &Option{
-		Pattern: expr,
-		Command: name,
-		Arg:     arg,
-	}
-
-	expect := &Lines{
-		matcher:        m,
-		processor:      p,
-		lines:          []string{},
-		matchedLines:   []string{},
-		matchedIndexes: make(map[int]bool),
-	}
-	actual, err := NewLines(opt)
-	if err != nil {
-		t.Errorf("NewLines(%v) returns %q, want nil",
-			opt, err)
-	}
-	if !reflect.DeepEqual(actual, expect) {
-		t.Errorf("got %v, want %v", actual, expect)
-	}
-}
-
 func TestLoadLines(t *testing.T) {
 	expr := `\d+`
 	m, err := NewMatcher(expr)
