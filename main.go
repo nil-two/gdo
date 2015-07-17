@@ -1,10 +1,10 @@
 package main
 
 import (
-	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
+
+	"github.com/yuya-takeyama/argf"
 )
 
 func guideToHelp() {
@@ -21,48 +21,35 @@ Process matched lines with COMMAND
 }
 
 func _main() int {
-	f := flag.NewFlagSet("gdo", flag.ContinueOnError)
-	f.SetOutput(ioutil.Discard)
-
-	var isHelp bool
-	f.BoolVar(&isHelp, "h", false, "")
-	f.BoolVar(&isHelp, "help", false, "")
-	if err := f.Parse(os.Args[1:]); err != nil {
+	opt, err := ParseOption(os.Args[1:])
+	if err != nil {
 		fmt.Fprintln(os.Stderr, "gdo:", err)
 		guideToHelp()
 		return 2
 	}
-	if isHelp {
+	if opt.IsHelp {
 		usage()
 		return 0
 	}
-	switch f.NArg() {
-	case 0:
-		fmt.Fprintln(os.Stderr, "gdo:", "no specify PATTERN and COMMAND")
-		return 2
-	case 1:
-		fmt.Fprintln(os.Stderr, "gdo:", "no specify COMMAND")
-		return 2
-	}
-	pattern, name, args := f.Arg(0), f.Arg(1), f.Args()[2:]
 
-	m, err := NewMatcher(pattern)
+	l, err := NewLines(opt)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "gdo:", err)
+		guideToHelp()
 		return 2
 	}
-	p, err := NewProcessor(name, args...)
+	r, err := argf.From(opt.Files)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "gdo:", err)
+		guideToHelp()
 		return 2
 	}
 
-	l := NewLines()
-	if err = l.LoadLines(os.Stdin, m); err != nil {
+	if err = l.LoadLines(r); err != nil {
 		fmt.Fprintln(os.Stderr, "gdo:", err)
 		return 1
 	}
-	if err = l.Flush(os.Stdout, p); err != nil {
+	if err = l.Flush(os.Stdout); err != nil {
 		fmt.Fprintln(os.Stderr, "gdo:", err)
 		return 1
 	}
