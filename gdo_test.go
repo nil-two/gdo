@@ -142,8 +142,14 @@ mno
 		t.Errorf("NewLines(%v).LoadLines(%v) returns %q, want nil",
 			m, src, err)
 	}
-	if !reflect.DeepEqual(actual, expect) {
-		t.Errorf("got %v, want %v", actual, expect)
+	if !reflect.DeepEqual(actual.lines, expect.lines) {
+		t.Errorf("lines got %q, want %q", actual, expect)
+	}
+	if !reflect.DeepEqual(actual.matchedLines, expect.matchedLines) {
+		t.Errorf("matchedLines got %q, want %q", actual, expect)
+	}
+	if !reflect.DeepEqual(actual.matchedIndexes, expect.matchedIndexes) {
+		t.Errorf("matchedIndexes got %q, want %q", actual, expect)
 	}
 }
 
