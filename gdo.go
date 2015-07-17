@@ -119,12 +119,23 @@ type Lines struct {
 	matchedIndexes map[int]bool
 }
 
-func NewLines() *Lines {
-	return &Lines{
-		lines:          []string{},
-		matchedLines:   []string{},
-		matchedIndexes: make(map[int]bool),
+func NewLines(opt *Option) (l *Lines, err error) {
+	if opt == nil {
+		opt = &Option{}
 	}
+	m, err := NewMatcher(opt.Pattern)
+	if err != nil {
+		return nil, err
+	}
+	p, err := NewProcessor(opt.Command, opt.Arg...)
+	if err != nil {
+		return nil, err
+	}
+	return &Lines{
+		matcher:        m,
+		processor:      p,
+		matchedIndexes: make(map[int]bool),
+	}, nil
 }
 
 func (l *Lines) LoadLines(r io.Reader, m *Matcher) error {
