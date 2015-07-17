@@ -112,6 +112,8 @@ func ParseOption(args []string) (opt *Option, err error) {
 }
 
 type Lines struct {
+	matcher        *Matcher
+	processor      *Processor
 	lines          []string
 	matchedLines   []string
 	matchedIndexes map[int]bool
