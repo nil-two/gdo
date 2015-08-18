@@ -24,6 +24,9 @@ func ParseOption(args []string) (opt *Option, err error) {
 	if err = f.Parse(args); err != nil {
 		return nil, err
 	}
+	if opt.IsHelp {
+		return opt, nil
+	}
 	switch f.NArg() {
 	case 0:
 		return nil, fmt.Errorf("no specify PATTERN and COMMAND")
